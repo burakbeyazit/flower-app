@@ -17,6 +17,9 @@ namespace CicekApp.Infrastructure.Persistence
         public DbSet<Delivery> Deliveries { get; set; }
         public DbSet<Courier> Couriers { get; set; }
 
+        public DbSet<User> Users { get; set; }
+        public DbSet<Role> Roles { get; set; }
+
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             modelBuilder.Entity<Order>()
@@ -28,6 +31,11 @@ namespace CicekApp.Infrastructure.Persistence
                 .HasOne(o => o.Delivery)
                 .WithOne(d => d.Order)
                 .HasForeignKey<Delivery>(d => d.OrderId);
+
+            modelBuilder.Entity<User>()
+            .HasOne(u => u.Role) // User bir Role'e ait
+            .WithMany(r => r.Users) // Role birçok User'a sahip
+            .HasForeignKey(u => u.RoleId);// Foreign Key tanımı
         }
 
     }
