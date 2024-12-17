@@ -4,9 +4,9 @@ using System.Linq;
 using System.Threading.Tasks;
 using CicekApp.Domain.Entities;
 
-namespace CicekApp.Infrastructure.Repositories
+namespace CicekApp.Application.Services.DeliveryService
 {
-    public interface IDeliveryRepository
+    public interface IDeliveryService
     {
         Task<Delivery> GetByIdAsync(int deliveryId);
         Task<IEnumerable<Delivery>> GetAllAsync();

@@ -7,13 +7,15 @@ using System.Threading.Tasks;
 using CicekApp.Application.Models;
 using CicekApp.Application.Services.Auth;
 using CicekApp.Domain.Entities;
-using CicekApp.Infrastructure.Repositories;
 using Microsoft.AspNetCore.DataProtection.AuthenticatedEncryption;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.IdentityModel.Tokens;
 
 namespace CicekApp.API.Controllers
 {
+
+    [ApiController]
+    [Route("api/users")]
     public class UserController : ControllerBase
     {
         private readonly IAuthService _authService;
@@ -44,7 +46,6 @@ namespace CicekApp.API.Controllers
         [HttpPost("login")]
         public async Task<IActionResult> Login(LoginModel model)
         {
-
 
             var response = await _authService.Login(model);
 

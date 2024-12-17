@@ -1,6 +1,6 @@
 using CicekApp.API.Middleware;
 using CicekApp.Application.Extensions;
-using CicekApp.Infrastructure.Persistence;
+using CicekApp.Application.Persistence;
 using Microsoft.EntityFrameworkCore;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -10,10 +10,14 @@ var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddControllers(); // Bu satırı eklediğinizden emin olun
 
-builder.Services.AddInfrastructureServices(); // DI 
 builder.Services.AddApplicationServices(); // DI
 builder.Services.AddDbContext<AppDbContext>(options =>
-            options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
+    options.UseNpgsql(
+        builder.Configuration.GetConnectionString("DefaultConnection"),
+        b => b.MigrationsAssembly("CicekApp.API") // Burada migration assembly'sini belirtiyoruz
+    )
+);
+
 
 builder.Services.AddSwaggerGen();
 

@@ -6,8 +6,8 @@ using System.Text;
 using System.Threading.Tasks;
 using CicekApp.Application.Models;
 using CicekApp.Application.Models.Response;
+using CicekApp.Application.Services.UserService;
 using CicekApp.Domain.Entities;
-using CicekApp.Infrastructure.Repositories;
 using Microsoft.Extensions.Configuration;
 using Microsoft.IdentityModel.Tokens;
 
@@ -15,11 +15,11 @@ namespace CicekApp.Application.Services.Auth
 {
     public class AuthService : IAuthService
     {
-        private readonly IUserRepository _userManager;
+        private readonly IUserService _userManager;
 
         private readonly IConfiguration _configuration;
 
-        public AuthService(IConfiguration configuration, IUserRepository userManager)
+        public AuthService(IConfiguration configuration, IUserService userManager)
         {
             _configuration = configuration;
             _userManager = userManager;
@@ -70,7 +70,7 @@ namespace CicekApp.Application.Services.Auth
             var token = new JwtSecurityToken(
                 issuer: _configuration["Jwt:Issuer"],
                 audience: _configuration["Jwt:Audience"],
-                expires: DateTime.Now.AddHours(3),
+                expires: DateTime.Now.AddHours(12),
                 signingCredentials: new SigningCredentials(authSigningKey, SecurityAlgorithms.HmacSha256)
             );
 

@@ -4,9 +4,9 @@ using System.Linq;
 using System.Threading.Tasks;
 using CicekApp.Domain.Entities;
 
-namespace CicekApp.Infrastructure.Repositories
+namespace CicekApp.Application.Services.CustomerService
 {
-    public interface ICustomerRepository
+    public interface ICustomerService
     {
         Task<Customer> GetByIdAsync(int customerId);  // Dönüş tipi Customer
         Task<IEnumerable<Customer>> GetAllAsync();
@@ -14,5 +14,4 @@ namespace CicekApp.Infrastructure.Repositories
         Task UpdateAsync(Customer customer);
         Task DeleteAsync(int customerId);
     }
-
 }

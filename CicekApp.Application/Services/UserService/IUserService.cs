@@ -1,12 +1,13 @@
+using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
 using CicekApp.Domain.Entities;
 
-namespace CicekApp.Infrastructure.Repositories
+namespace CicekApp.Application.Services.UserService
 {
-    public interface IUserRepository
+    public interface IUserService
     {
-        // Kullanıcı ID'sine göre kullanıcıyı getirir
         Task<User> GetByIdAsync(int userId);
 
         // Kullanıcı Emailine göre kullanıcıyı getirir

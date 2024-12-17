@@ -1,18 +1,19 @@
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
+using CicekApp.Application.Persistence;
 using CicekApp.Domain.Entities;
-using CicekApp.Infrastructure.Persistence;
 using Dapper;
 using Microsoft.EntityFrameworkCore;
 
-namespace CicekApp.Infrastructure.Repositories
+namespace CicekApp.Application.Services.FlowerService
 {
-    public class FlowerRepository : IFlowerRepository
+    public class FlowerService : IFlowerService
     {
         private readonly AppDbContext _context;
 
-        public FlowerRepository(AppDbContext context)
+        public FlowerService(AppDbContext context)
         {
             _context = context;
         }

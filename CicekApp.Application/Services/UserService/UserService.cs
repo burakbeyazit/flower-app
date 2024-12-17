@@ -1,17 +1,20 @@
+using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
+using CicekApp.Application.Persistence;
 using CicekApp.Domain.Entities;
-using CicekApp.Infrastructure.Persistence;
 using Dapper;
 using Microsoft.EntityFrameworkCore;
 
-namespace CicekApp.Infrastructure.Repositories
+namespace CicekApp.Application.Services.UserService
+
 {
-    public class UserRepository : IUserRepository
+    public class UserService : IUserService
     {
         private readonly AppDbContext _context;
 
-        public UserRepository(AppDbContext context)
+        public UserService(AppDbContext context)
         {
             _context = context;
         }
@@ -105,6 +108,5 @@ namespace CicekApp.Infrastructure.Repositories
                 UserId = userId
             });
         }
-
     }
 }

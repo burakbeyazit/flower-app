@@ -5,7 +5,7 @@ using System.Threading.Tasks;
 using CicekApp.Domain.Entities;
 using Microsoft.EntityFrameworkCore;
 
-namespace CicekApp.Infrastructure.Persistence
+namespace CicekApp.Application.Persistence
 {
     public class AppDbContext : DbContext
     {

@@ -9,8 +9,7 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CicekApp.Application", "Cic
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CicekApp.Domain", "CicekApp.Domain\CicekApp.Domain.csproj", "{98EFF006-3C5B-4888-89BD-8988859F3540}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CicekApp.Infrastructure", "CicekApp.Infrastructure\CicekApp.Infrastructure.csproj", "{4FAAE1FE-9FB2-4148-9630-3E4F8E8F4293}"
-EndProject
+
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU

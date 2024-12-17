@@ -2,18 +2,18 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using CicekApp.Application.Persistence;
 using CicekApp.Domain.Entities;
-using CicekApp.Infrastructure.Persistence;
 using Dapper;
 using Microsoft.EntityFrameworkCore;
 
-namespace CicekApp.Infrastructure.Repositories
+namespace CicekApp.Application.Services.CustomerService
 {
-    public class CustomerRepository : ICustomerRepository
+    public class CustomerService : ICustomerService
     {
         private readonly AppDbContext _context;
 
-        public CustomerRepository(AppDbContext context)
+        public CustomerService(AppDbContext context)
         {
             _context = context;
         }

@@ -1,21 +1,19 @@
 using System;
 using System.Collections.Generic;
-using System.Data;
+using System.Linq;
 using System.Threading.Tasks;
+using CicekApp.Application.Persistence;
 using CicekApp.Domain.Entities;
-using CicekApp.Infrastructure.Persistence;
 using Dapper;
-using Microsoft.Data.SqlClient;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.Configuration;
 
-namespace CicekApp.Infrastructure.Repositories
+namespace CicekApp.Application.Services.DeliveryService
 {
-    public class DeliveryRepository : IDeliveryRepository
+    public class DeliveryService : IDeliveryService
     {
         private readonly AppDbContext _context;
 
-        public DeliveryRepository(AppDbContext context)
+        public DeliveryService(AppDbContext context)
         {
             _context = context;
         }
