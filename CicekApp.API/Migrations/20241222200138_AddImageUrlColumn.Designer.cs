@@ -3,6 +3,7 @@ using System;
 using CicekApp.Application.Persistence;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
@@ -11,9 +12,11 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace CicekApp.API.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    partial class AppDbContextModelSnapshot : ModelSnapshot
+    [Migration("20241222200138_AddImageUrlColumn")]
+    partial class AddImageUrlColumn
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -149,6 +152,10 @@ namespace CicekApp.API.Migrations
                     b.Property<string>("FlowerName")
                         .HasColumnType("text")
                         .HasColumnName("flowername");
+
+                    b.Property<string>("FlowerType")
+                        .HasColumnType("text")
+                        .HasColumnName("flowertype");
 
                     b.Property<string>("ImageUrl")
                         .HasColumnType("text")

@@ -7,13 +7,17 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace CicekApp.API.Migrations
 {
     /// <inheritdoc />
-    public partial class InitialCreate : Migration
+    public partial class LowercaseTableNames : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
         {
+            migrationBuilder.EnsureSchema(
+                name: "public");
+
             migrationBuilder.CreateTable(
-                name: "Couriers",
+                name: "couriers",
+                schema: "public",
                 columns: table => new
                 {
                     CourierId = table.Column<int>(type: "integer", nullable: false)
@@ -23,11 +27,12 @@ namespace CicekApp.API.Migrations
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_Couriers", x => x.CourierId);
+                    table.PrimaryKey("PK_couriers", x => x.CourierId);
                 });
 
             migrationBuilder.CreateTable(
-                name: "Customers",
+                name: "customers",
+                schema: "public",
                 columns: table => new
                 {
                     CustomerId = table.Column<int>(type: "integer", nullable: false)
@@ -39,11 +44,12 @@ namespace CicekApp.API.Migrations
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_Customers", x => x.CustomerId);
+                    table.PrimaryKey("PK_customers", x => x.CustomerId);
                 });
 
             migrationBuilder.CreateTable(
-                name: "Flowers",
+                name: "flowers",
+                schema: "public",
                 columns: table => new
                 {
                     FlowerId = table.Column<int>(type: "integer", nullable: false)
@@ -56,11 +62,12 @@ namespace CicekApp.API.Migrations
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_Flowers", x => x.FlowerId);
+                    table.PrimaryKey("PK_flowers", x => x.FlowerId);
                 });
 
             migrationBuilder.CreateTable(
-                name: "Roles",
+                name: "roles",
+                schema: "public",
                 columns: table => new
                 {
                     RoleId = table.Column<int>(type: "integer", nullable: false)
@@ -69,11 +76,12 @@ namespace CicekApp.API.Migrations
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_Roles", x => x.RoleId);
+                    table.PrimaryKey("PK_roles", x => x.RoleId);
                 });
 
             migrationBuilder.CreateTable(
-                name: "Orders",
+                name: "orders",
+                schema: "public",
                 columns: table => new
                 {
                     OrderId = table.Column<int>(type: "integer", nullable: false)
@@ -85,17 +93,19 @@ namespace CicekApp.API.Migrations
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_Orders", x => x.OrderId);
+                    table.PrimaryKey("PK_orders", x => x.OrderId);
                     table.ForeignKey(
-                        name: "FK_Orders_Customers_CustomerId",
+                        name: "FK_orders_customers_CustomerId",
                         column: x => x.CustomerId,
-                        principalTable: "Customers",
+                        principalSchema: "public",
+                        principalTable: "customers",
                         principalColumn: "CustomerId",
                         onDelete: ReferentialAction.Cascade);
                 });
 
             migrationBuilder.CreateTable(
-                name: "Users",
+                name: "users",
+                schema: "public",
                 columns: table => new
                 {
                     UserId = table.Column<int>(type: "integer", nullable: false)
@@ -113,17 +123,19 @@ namespace CicekApp.API.Migrations
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_Users", x => x.UserId);
+                    table.PrimaryKey("PK_users", x => x.UserId);
                     table.ForeignKey(
-                        name: "FK_Users_Roles_RoleId",
+                        name: "FK_users_roles_RoleId",
                         column: x => x.RoleId,
-                        principalTable: "Roles",
+                        principalSchema: "public",
+                        principalTable: "roles",
                         principalColumn: "RoleId",
                         onDelete: ReferentialAction.Cascade);
                 });
 
             migrationBuilder.CreateTable(
-                name: "Deliveries",
+                name: "deliveries",
+                schema: "public",
                 columns: table => new
                 {
                     DeliveryId = table.Column<int>(type: "integer", nullable: false)
@@ -136,29 +148,33 @@ namespace CicekApp.API.Migrations
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_Deliveries", x => x.DeliveryId);
+                    table.PrimaryKey("PK_deliveries", x => x.DeliveryId);
                     table.ForeignKey(
-                        name: "FK_Deliveries_Orders_OrderId",
+                        name: "FK_deliveries_orders_OrderId",
                         column: x => x.OrderId,
-                        principalTable: "Orders",
+                        principalSchema: "public",
+                        principalTable: "orders",
                         principalColumn: "OrderId",
                         onDelete: ReferentialAction.Cascade);
                 });
 
             migrationBuilder.CreateIndex(
-                name: "IX_Deliveries_OrderId",
-                table: "Deliveries",
+                name: "IX_deliveries_OrderId",
+                schema: "public",
+                table: "deliveries",
                 column: "OrderId",
                 unique: true);
 
             migrationBuilder.CreateIndex(
-                name: "IX_Orders_CustomerId",
-                table: "Orders",
+                name: "IX_orders_CustomerId",
+                schema: "public",
+                table: "orders",
                 column: "CustomerId");
 
             migrationBuilder.CreateIndex(
-                name: "IX_Users_RoleId",
-                table: "Users",
+                name: "IX_users_RoleId",
+                schema: "public",
+                table: "users",
                 column: "RoleId");
         }
 
@@ -166,25 +182,32 @@ namespace CicekApp.API.Migrations
         protected override void Down(MigrationBuilder migrationBuilder)
         {
             migrationBuilder.DropTable(
-                name: "Couriers");
+                name: "couriers",
+                schema: "public");
 
             migrationBuilder.DropTable(
-                name: "Deliveries");
+                name: "deliveries",
+                schema: "public");
 
             migrationBuilder.DropTable(
-                name: "Flowers");
+                name: "flowers",
+                schema: "public");
 
             migrationBuilder.DropTable(
-                name: "Users");
+                name: "users",
+                schema: "public");
 
             migrationBuilder.DropTable(
-                name: "Orders");
+                name: "orders",
+                schema: "public");
 
             migrationBuilder.DropTable(
-                name: "Roles");
+                name: "roles",
+                schema: "public");
 
             migrationBuilder.DropTable(
-                name: "Customers");
+                name: "customers",
+                schema: "public");
         }
     }
 }

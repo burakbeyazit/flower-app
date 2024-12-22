@@ -15,7 +15,7 @@ namespace CicekApp.API.Controllers
 {
 
     [ApiController]
-    [Route("api/users")]
+    [Route("api/auth")]
     public class UserController : ControllerBase
     {
         private readonly IAuthService _authService;
@@ -58,10 +58,6 @@ namespace CicekApp.API.Controllers
             {
                 return Ok(response);
             }
-
-
-
-
 
         }
 

@@ -37,6 +37,8 @@ namespace CicekApp.API.Middleware
                 Error = 404
             };
 
+            Console.WriteLine(response);
+
             httpContext.Response.ContentType = "application/json";
 
             httpContext.Response.StatusCode = 404;

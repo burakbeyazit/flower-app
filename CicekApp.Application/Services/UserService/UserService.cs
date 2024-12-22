@@ -22,7 +22,7 @@ namespace CicekApp.Application.Services.UserService
         // Belirli bir kullanıcıyı ID ile getirir
         public async Task<User> GetByIdAsync(int userId)
         {
-            var query = "SELECT * FROM Users WHERE UserId = @UserId";
+            var query = "SELECT * FROM Users WHERE userid = @UserId";
             return await _context.Database.GetDbConnection()
                 .QueryFirstOrDefaultAsync<User>(query, new { UserId = userId });
         }
@@ -32,7 +32,7 @@ namespace CicekApp.Application.Services.UserService
 
         public async Task<User> GetByEmailAsync(string email)
         {
-            var query = "SELECT * FROM Users WHERE Email = @Email";
+            var query = "SELECT * FROM public.users  WHERE email = @Email";
             return await _context.Database.GetDbConnection()
                 .QueryFirstOrDefaultAsync<User>(query, new { Email = email });
         }
@@ -40,7 +40,7 @@ namespace CicekApp.Application.Services.UserService
         // Tüm kullanıcıları getirir
         public async Task<IEnumerable<User>> GetAllAsync()
         {
-            var query = "SELECT * FROM Users";
+            var query = "SELECT * FROM public.users ";
             return await _context.Database.GetDbConnection()
                 .QueryAsync<User>(query);
         }
@@ -48,8 +48,8 @@ namespace CicekApp.Application.Services.UserService
         // Yeni bir kullanıcı ekler
         public async Task AddAsync(User user)
         {
-            var query = "INSERT INTO Users (Email, PasswordHash, FirstName, LastName, RoleId, CreatedAt, LastOnline) " +
-                        "VALUES (@Email, @PasswordHash, @FirstName, @LastName, @RoleId, @CreatedAt, @LastOnline)";
+            var query = "INSERT INTO public.users (email, passwordhash, firstname, lastname, phonenumber, createdat, lastonline, isactive, roleid, statusmessage) " +
+            "VALUES(@Email, @PasswordHash, @FirstName, @LastName, @PhoneNumber, @CreatedAt, @LastOnline, @IsActive, @RoleId, @StatusMessage)";
 
             await _context.Database.GetDbConnection().ExecuteAsync(query, new
             {
@@ -57,40 +57,53 @@ namespace CicekApp.Application.Services.UserService
                 user.PasswordHash,
                 user.FirstName,
                 user.LastName,
-                user.RoleId,
+                user.PhoneNumber,
                 user.CreatedAt,
-                user.LastOnline
+                user.LastOnline,
+                user.IsActive,
+                user.RoleId,
+                user.StatusMessage
             });
         }
 
-        // Var olan bir kullanıcıyı günceller
         public async Task UpdateAsync(User user)
         {
-            var query = "UPDATE Users SET " +
-                        "Email = @Email, " +
-                        "PasswordHash = @PasswordHash, " +
-                        "FirstName = @FirstName, " +
-                        "LastName = @LastName, " +
-                        "RoleId = @RoleId, " +
-                        "LastOnline = @LastOnline " +
-                        "WHERE UserId = @UserId";
+            var query = @"UPDATE public.users SET 
+                  email = @Email, 
+                  passwordhash = @PasswordHash, 
+                  firstname = @FirstName, 
+                  lastname = @LastName, 
+                  phonenumber = @PhoneNumber, 
+                  lastonline = @LastOnline, 
+                  isactive = @IsActive, 
+                  roleid = @RoleId, 
+                  statusmessage = @StatusMessage
+                  WHERE userid = @UserId";
 
-            await _context.Database.GetDbConnection().ExecuteAsync(query, new
+            var parameters = new
             {
                 user.Email,
                 user.PasswordHash,
                 user.FirstName,
                 user.LastName,
-                user.RoleId,
+                user.PhoneNumber,
                 user.LastOnline,
+                user.IsActive,
+                user.RoleId,
+                user.StatusMessage,
                 user.UserId
-            });
+            };
+
+            // Execute the query
+            await _context.Database.GetDbConnection().ExecuteAsync(query, parameters);
         }
+
+
 
         // Kullanıcıyı siler
         public async Task DeleteAsync(int userId)
         {
-            var query = "DELETE FROM Users WHERE UserId = @UserId";
+            var query = "DELETE FROM public.users  WHERE userid = @UserId";
 
             await _context.Database.GetDbConnection().ExecuteAsync(query, new { UserId = userId });
         }
@@ -100,7 +113,7 @@ namespace CicekApp.Application.Services.UserService
 
         public async Task UpdateLastEntryDateAsync(int userId)
         {
-            var query = "UPDATE Users SET LastOnline = @LastOnline WHERE UserId = @UserId";
+            var query = "UPDATE public.users  SET lastonline = @LastOnline WHERE userid = @UserId";
 
             await _context.Database.GetDbConnection().ExecuteAsync(query, new
             {

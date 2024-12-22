@@ -9,6 +9,12 @@ namespace CicekApp.Application.Services.FlowerService
     public interface IFlowerService
     {
         Task<Flower> GetByIdAsync(int flowerId);
+        Task<List<Flower>> GetAllAsync();
+        Task AddAsync(Flower flower);
+
+        Task UpdateAsync(Flower flower);
+
+        Task DeleteAsync(int flowerId);
 
     }
 }

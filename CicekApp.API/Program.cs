@@ -5,10 +5,20 @@ using Microsoft.EntityFrameworkCore;
 
 var builder = WebApplication.CreateBuilder(args);
 
-// Add services to the container.
-// Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
+// Add services to the container
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddControllers(); // Bu satırı eklediğinizden emin olun
+
+// CORS Middleware'ini ekleyelim
+builder.Services.AddCors(options =>
+{
+    options.AddPolicy("AllowSpecificOrigin", builder =>
+    {
+        builder.WithOrigins("*") // Tüm origin'lere izin veriyoruz
+               .AllowAnyMethod()
+               .AllowAnyHeader();
+    });
+});
 
 builder.Services.AddApplicationServices(); // DI
 builder.Services.AddDbContext<AppDbContext>(options =>
@@ -18,12 +28,11 @@ builder.Services.AddDbContext<AppDbContext>(options =>
     )
 );
 
-
 builder.Services.AddSwaggerGen();
 
 var app = builder.Build();
 
-// Configure the HTTP request pipeline.
+// Configure the HTTP request pipeline
 if (app.Environment.IsDevelopment())
 {
     app.UseSwagger();
@@ -32,10 +41,12 @@ if (app.Environment.IsDevelopment())
 
 app.UseHttpsRedirection();
 
+// CORS middleware'ini burada eklediğimizden emin olun
+app.UseCors("AllowSpecificOrigin"); // CORS politikasını kullanıyoruz
 
+// Diğer middleware'leri burada ekleyebilirsiniz
+app.UseRouting(); // Bu satırı ekleyin, CORS'dan önce gelmeli
 app.MapControllers();
 app.UseMiddleware<ExceptionHandlingMiddleware>();
 
-
 app.Run();
-

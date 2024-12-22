@@ -12,8 +12,8 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace CicekApp.API.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    [Migration("20241217195322_InitialCreate")]
-    partial class InitialCreate
+    [Migration("20241222155851_LowercaseTableNames")]
+    partial class LowercaseTableNames
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -41,7 +41,7 @@ namespace CicekApp.API.Migrations
 
                     b.HasKey("CourierId");
 
-                    b.ToTable("Couriers");
+                    b.ToTable("couriers", "public");
                 });
 
             modelBuilder.Entity("CicekApp.Domain.Entities.Customer", b =>
@@ -66,7 +66,7 @@ namespace CicekApp.API.Migrations
 
                     b.HasKey("CustomerId");
 
-                    b.ToTable("Customers");
+                    b.ToTable("customers", "public");
                 });
 
             modelBuilder.Entity("CicekApp.Domain.Entities.Delivery", b =>
@@ -97,7 +97,7 @@ namespace CicekApp.API.Migrations
                     b.HasIndex("OrderId")
                         .IsUnique();
 
-                    b.ToTable("Deliveries");
+                    b.ToTable("deliveries", "public");
                 });
 
             modelBuilder.Entity("CicekApp.Domain.Entities.Flower", b =>
@@ -125,7 +125,7 @@ namespace CicekApp.API.Migrations
 
                     b.HasKey("FlowerId");
 
-                    b.ToTable("Flowers");
+                    b.ToTable("flowers", "public");
                 });
 
             modelBuilder.Entity("CicekApp.Domain.Entities.Order", b =>
@@ -152,7 +152,7 @@ namespace CicekApp.API.Migrations
 
                     b.HasIndex("CustomerId");
 
-                    b.ToTable("Orders");
+                    b.ToTable("orders", "public");
                 });
 
             modelBuilder.Entity("CicekApp.Domain.Entities.Role", b =>
@@ -168,7 +168,7 @@ namespace CicekApp.API.Migrations
 
                     b.HasKey("RoleId");
 
-                    b.ToTable("Roles");
+                    b.ToTable("roles", "public");
                 });
 
             modelBuilder.Entity("CicekApp.Domain.Entities.User", b =>
@@ -213,7 +213,7 @@ namespace CicekApp.API.Migrations
 
                     b.HasIndex("RoleId");
 
-                    b.ToTable("Users");
+                    b.ToTable("users", "public");
                 });
 
             modelBuilder.Entity("CicekApp.Domain.Entities.Delivery", b =>

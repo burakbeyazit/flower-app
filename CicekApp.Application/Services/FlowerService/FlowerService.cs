@@ -27,11 +27,12 @@ namespace CicekApp.Application.Services.FlowerService
         }
 
         // Tüm çiçekleri getirir
-        public async Task<IEnumerable<Flower>> GetAllAsync()
+        public async Task<List<Flower>> GetAllAsync()
         {
             var query = "SELECT * FROM Flowers";
-            return await _context.Database.GetDbConnection()
+            var result = await _context.Database.GetDbConnection()
                 .QueryAsync<Flower>(query);
+            return result.ToList();
         }
 
         // Yeni bir çiçek ekler
@@ -43,7 +44,6 @@ namespace CicekApp.Application.Services.FlowerService
             await _context.Database.GetDbConnection().ExecuteAsync(query, new
             {
                 flower.FlowerName,
-                flower.FlowerType,
                 flower.Price,
                 flower.StockQuantity,
                 flower.Description
@@ -67,7 +67,6 @@ namespace CicekApp.Application.Services.FlowerService
             await _context.Database.GetDbConnection().ExecuteAsync(query, new
             {
                 flower.FlowerName,
-                flower.FlowerType,
                 flower.Price,
                 flower.StockQuantity,
                 flower.Description,

@@ -3,6 +3,7 @@ using System;
 using CicekApp.Application.Persistence;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
@@ -11,9 +12,11 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace CicekApp.API.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    partial class AppDbContextModelSnapshot : ModelSnapshot
+    [Migration("20241222161017_UpdateColumnNamesToLower")]
+    partial class UpdateColumnNamesToLower
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -21,24 +24,6 @@ namespace CicekApp.API.Migrations
                 .HasAnnotation("Relational:MaxIdentifierLength", 63);
 
             NpgsqlModelBuilderExtensions.UseIdentityByDefaultColumns(modelBuilder);
-
-            modelBuilder.Entity("CicekApp.Domain.Entities.Category", b =>
-                {
-                    b.Property<int>("CategoryId")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("integer")
-                        .HasColumnName("categoryid");
-
-                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("CategoryId"));
-
-                    b.Property<string>("CategoryName")
-                        .HasColumnType("text")
-                        .HasColumnName("categoryname");
-
-                    b.HasKey("CategoryId");
-
-                    b.ToTable("category", "public");
-                });
 
             modelBuilder.Entity("CicekApp.Domain.Entities.Courier", b =>
                 {
@@ -138,10 +123,6 @@ namespace CicekApp.API.Migrations
 
                     NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("FlowerId"));
 
-                    b.Property<int>("CategoryId")
-                        .HasColumnType("integer")
-                        .HasColumnName("categoryid");
-
                     b.Property<string>("Description")
                         .HasColumnType("text")
                         .HasColumnName("description");
@@ -150,9 +131,9 @@ namespace CicekApp.API.Migrations
                         .HasColumnType("text")
                         .HasColumnName("flowername");
 
-                    b.Property<string>("ImageUrl")
+                    b.Property<string>("FlowerType")
                         .HasColumnType("text")
-                        .HasColumnName("imageurl");
+                        .HasColumnName("flowertype");
 
                     b.Property<decimal>("Price")
                         .HasColumnType("numeric")
@@ -163,8 +144,6 @@ namespace CicekApp.API.Migrations
                         .HasColumnName("stockquantity");
 
                     b.HasKey("FlowerId");
-
-                    b.HasIndex("CategoryId");
 
                     b.ToTable("flowers", "public");
                 });
@@ -286,17 +265,6 @@ namespace CicekApp.API.Migrations
                     b.Navigation("Order");
                 });
 
-            modelBuilder.Entity("CicekApp.Domain.Entities.Flower", b =>
-                {
-                    b.HasOne("CicekApp.Domain.Entities.Category", "Category")
-                        .WithMany("Flowers")
-                        .HasForeignKey("CategoryId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("Category");
-                });
-
             modelBuilder.Entity("CicekApp.Domain.Entities.Order", b =>
                 {
                     b.HasOne("CicekApp.Domain.Entities.Customer", "Customer")
@@ -317,11 +285,6 @@ namespace CicekApp.API.Migrations
                         .IsRequired();
 
                     b.Navigation("Role");
-                });
-
-            modelBuilder.Entity("CicekApp.Domain.Entities.Category", b =>
-                {
-                    b.Navigation("Flowers");
                 });
 
             modelBuilder.Entity("CicekApp.Domain.Entities.Customer", b =>

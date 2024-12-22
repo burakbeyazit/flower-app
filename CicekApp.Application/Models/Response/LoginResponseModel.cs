@@ -11,7 +11,7 @@ namespace CicekApp.Application.Models.Response
         public string Message { get; set; }
         public bool Success { get; set; }
 
-        public JwtSecurityToken Token { get; set; }
+        public string Token { get; set; }
 
     }
 }
