@@ -5,7 +5,9 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using CicekApp.Application.Models;
+using CicekApp.Application.Models.Request;
 using CicekApp.Application.Services.Auth;
+using CicekApp.Application.Services.UserService;
 using CicekApp.Domain.Entities;
 using Microsoft.AspNetCore.DataProtection.AuthenticatedEncryption;
 using Microsoft.AspNetCore.Mvc;
@@ -19,11 +21,14 @@ namespace CicekApp.API.Controllers
     public class UserController : ControllerBase
     {
         private readonly IAuthService _authService;
+        private readonly IUserService _userService;
 
 
-        public UserController(IAuthService authService)
+
+        public UserController(IAuthService authService, IUserService userService)
         {
             _authService = authService;
+            _userService = userService;
         }
 
         [HttpPost("register")]
@@ -58,6 +63,17 @@ namespace CicekApp.API.Controllers
             {
                 return Ok(response);
             }
+
+        }
+
+        [HttpPost("saveAdress")]
+        public async Task<IActionResult> SaveAdress(AddressRequest model)
+        {
+
+            await _userService.SaveAddressAsync(model);
+
+            return Ok();
+
 
         }
 

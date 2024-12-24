@@ -3,6 +3,7 @@ using System;
 using CicekApp.Application.Persistence;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
@@ -11,9 +12,11 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace CicekApp.API.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    partial class AppDbContextModelSnapshot : ModelSnapshot
+    [Migration("20241223191957_cartupdates")]
+    partial class cartupdates
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -52,30 +55,10 @@ namespace CicekApp.API.Migrations
                     b.HasIndex("OrderId")
                         .IsUnique();
 
-                    b.HasIndex("UserId");
+                    b.HasIndex("UserId")
+                        .IsUnique();
 
                     b.ToTable("carts", "public");
-                });
-
-            modelBuilder.Entity("CicekApp.Domain.Entities.CartFlowers", b =>
-                {
-                    b.Property<int>("CartId")
-                        .HasColumnType("integer")
-                        .HasColumnName("cartid");
-
-                    b.Property<int>("FlowerId")
-                        .HasColumnType("integer")
-                        .HasColumnName("flowerid");
-
-                    b.Property<int>("Quantity")
-                        .HasColumnType("integer")
-                        .HasColumnName("quantity");
-
-                    b.HasKey("CartId", "FlowerId");
-
-                    b.HasIndex("FlowerId");
-
-                    b.ToTable("cart_flowers", "public");
                 });
 
             modelBuilder.Entity("CicekApp.Domain.Entities.Category", b =>
@@ -222,16 +205,12 @@ namespace CicekApp.API.Migrations
 
                     NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("OrderId"));
 
-                    b.Property<int>("CartId")
-                        .HasColumnType("integer")
-                        .HasColumnName("cartid");
-
                     b.Property<DateTime>("OrderDate")
                         .HasColumnType("timestamp with time zone")
                         .HasColumnName("orderdate");
 
-                    b.Property<int>("Status")
-                        .HasColumnType("integer")
+                    b.Property<string>("Status")
+                        .HasColumnType("text")
                         .HasColumnName("status");
 
                     b.Property<decimal>("TotalPrice")
@@ -343,37 +322,17 @@ namespace CicekApp.API.Migrations
                 {
                     b.HasOne("CicekApp.Domain.Entities.Order", "Order")
                         .WithOne("Cart")
-                        .HasForeignKey("CicekApp.Domain.Entities.Cart", "OrderId")
-                        .OnDelete(DeleteBehavior.SetNull);
+                        .HasForeignKey("CicekApp.Domain.Entities.Cart", "OrderId");
 
                     b.HasOne("CicekApp.Domain.Entities.User", "User")
-                        .WithMany("Carts")
-                        .HasForeignKey("UserId")
+                        .WithOne("Cart")
+                        .HasForeignKey("CicekApp.Domain.Entities.Cart", "UserId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
                     b.Navigation("Order");
 
                     b.Navigation("User");
-                });
-
-            modelBuilder.Entity("CicekApp.Domain.Entities.CartFlowers", b =>
-                {
-                    b.HasOne("CicekApp.Domain.Entities.Cart", "Cart")
-                        .WithMany("CartFlowers")
-                        .HasForeignKey("CartId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.HasOne("CicekApp.Domain.Entities.Flower", "Flower")
-                        .WithMany("CartFlowers")
-                        .HasForeignKey("FlowerId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("Cart");
-
-                    b.Navigation("Flower");
                 });
 
             modelBuilder.Entity("CicekApp.Domain.Entities.Delivery", b =>
@@ -438,8 +397,6 @@ namespace CicekApp.API.Migrations
 
             modelBuilder.Entity("CicekApp.Domain.Entities.Cart", b =>
                 {
-                    b.Navigation("CartFlowers");
-
                     b.Navigation("Flowers");
                 });
 
@@ -451,11 +408,6 @@ namespace CicekApp.API.Migrations
             modelBuilder.Entity("CicekApp.Domain.Entities.Courier", b =>
                 {
                     b.Navigation("Deliveries");
-                });
-
-            modelBuilder.Entity("CicekApp.Domain.Entities.Flower", b =>
-                {
-                    b.Navigation("CartFlowers");
                 });
 
             modelBuilder.Entity("CicekApp.Domain.Entities.Order", b =>
@@ -474,7 +426,7 @@ namespace CicekApp.API.Migrations
 
             modelBuilder.Entity("CicekApp.Domain.Entities.User", b =>
                 {
-                    b.Navigation("Carts");
+                    b.Navigation("Cart");
 
                     b.Navigation("Orders");
                 });

@@ -45,7 +45,7 @@ namespace CicekApp.Application.Services.Auth
                 CreatedAt = DateTime.Now,
                 LastName = registerObject.LastName,
                 LastOnline = DateTime.Now,
-                PhoneNumber = registerObject.PhoneNumber,
+                Phone = registerObject.PhoneNumber,
                 RoleId = 3, // 1-Admin 2-Eleman 3-Normal üye
                 StatusMessage = registerObject.StatusMessage ?? "",
                 PasswordHash = BCrypt.Net.BCrypt.HashPassword(registerObject.Password)

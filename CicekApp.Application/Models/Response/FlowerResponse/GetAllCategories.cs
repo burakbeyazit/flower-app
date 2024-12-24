@@ -5,8 +5,9 @@ using System.Threading.Tasks;
 
 namespace CicekApp.Application.Models.Response.FlowerResponse
 {
-    public class GetAllFlowerResponse
+    public class GetAllCategories
     {
-        
+        public int CategoryId { get; set; }
+        public string CategoryName { get; set; }
     }
 }

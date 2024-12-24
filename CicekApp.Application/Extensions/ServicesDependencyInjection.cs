@@ -3,9 +3,11 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using CicekApp.Application.Services.Auth;
-using CicekApp.Application.Services.CustomerService;
+using CicekApp.Application.Services.CartService;
+using CicekApp.Application.Services.CategoryService;
 using CicekApp.Application.Services.DeliveryService;
 using CicekApp.Application.Services.FlowerService;
+using CicekApp.Application.Services.OrderService;
 using CicekApp.Application.Services.UserService;
 using CicekApp.Domain.Entities;
 using Microsoft.Extensions.DependencyInjection;
@@ -21,7 +23,12 @@ namespace CicekApp.Application.Extensions
             services.AddScoped<IFlowerService, FlowerService>(); // Servis kaydı
             services.AddScoped<IDeliveryService, DeliveryService>(); // Servis kaydı
             services.AddScoped<IUserService, UserService>(); // Servis kaydı
-            services.AddScoped<ICustomerService, CustomerService>(); // Servis kaydı
+            services.AddScoped<ICategoryService, CategoryService>(); // Servis kaydı
+            services.AddScoped<ICartService, CartService>(); // Servis kaydı
+            services.AddScoped<IOrderService, OrderService>(); // Servis kaydını yapın
+
+
+
 
 
             // Diğer servisler ve repository'ler...

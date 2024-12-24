@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using CicekApp.Application.Models.Request;
 using CicekApp.Domain.Entities;
 
 namespace CicekApp.Application.Services.UserService
@@ -26,5 +27,6 @@ namespace CicekApp.Application.Services.UserService
         Task DeleteAsync(int userId);
 
         Task UpdateLastEntryDateAsync(int userId);
+        Task SaveAddressAsync(AddressRequest addressRequest);
     }
 }

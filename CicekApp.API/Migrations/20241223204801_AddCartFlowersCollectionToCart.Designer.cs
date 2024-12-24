@@ -3,6 +3,7 @@ using System;
 using CicekApp.Application.Persistence;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
@@ -11,9 +12,11 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace CicekApp.API.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    partial class AppDbContextModelSnapshot : ModelSnapshot
+    [Migration("20241223204801_AddCartFlowersCollectionToCart")]
+    partial class AddCartFlowersCollectionToCart
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -52,7 +55,8 @@ namespace CicekApp.API.Migrations
                     b.HasIndex("OrderId")
                         .IsUnique();
 
-                    b.HasIndex("UserId");
+                    b.HasIndex("UserId")
+                        .IsUnique();
 
                     b.ToTable("carts", "public");
                 });
@@ -222,10 +226,6 @@ namespace CicekApp.API.Migrations
 
                     NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("OrderId"));
 
-                    b.Property<int>("CartId")
-                        .HasColumnType("integer")
-                        .HasColumnName("cartid");
-
                     b.Property<DateTime>("OrderDate")
                         .HasColumnType("timestamp with time zone")
                         .HasColumnName("orderdate");
@@ -343,12 +343,11 @@ namespace CicekApp.API.Migrations
                 {
                     b.HasOne("CicekApp.Domain.Entities.Order", "Order")
                         .WithOne("Cart")
-                        .HasForeignKey("CicekApp.Domain.Entities.Cart", "OrderId")
-                        .OnDelete(DeleteBehavior.SetNull);
+                        .HasForeignKey("CicekApp.Domain.Entities.Cart", "OrderId");
 
                     b.HasOne("CicekApp.Domain.Entities.User", "User")
-                        .WithMany("Carts")
-                        .HasForeignKey("UserId")
+                        .WithOne("Cart")
+                        .HasForeignKey("CicekApp.Domain.Entities.Cart", "UserId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
@@ -474,7 +473,7 @@ namespace CicekApp.API.Migrations
 
             modelBuilder.Entity("CicekApp.Domain.Entities.User", b =>
                 {
-                    b.Navigation("Carts");
+                    b.Navigation("Cart");
 
                     b.Navigation("Orders");
                 });

@@ -3,9 +3,9 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 
-namespace CicekApp.Domain.Entities
+namespace CicekApp.Application.Models.Response.FlowerResponse
 {
-    public class Flower
+    public class CartViewResponse
     {
         public int FlowerId { get; set; }
         public string FlowerName { get; set; }
@@ -13,11 +13,10 @@ namespace CicekApp.Domain.Entities
         public int StockQuantity { get; set; }
         public string Description { get; set; }
         public string ImageUrl { get; set; }
-
-        public int CategoryId { get; set; } // Kategorisi
-        public Category Category { get; set; } // Kategori ile ilişki
-
-        public ICollection<CartFlowers> CartFlowers { get; set; }  // Cart'ı çiçeklerle ilişkilendiren koleksiyon
+        public int CategoryId { get; set; }
+        public string Category { get; set; }
+        public int Quantity { get; set; }
+        public int CartId { get; set; }
 
     }
 
