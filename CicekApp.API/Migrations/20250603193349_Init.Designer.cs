@@ -12,8 +12,8 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace CicekApp.API.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    [Migration("20241224200713_UpdateCartOrderRelationship")]
-    partial class UpdateCartOrderRelationship
+    [Migration("20250603193349_Init")]
+    partial class Init
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -55,8 +55,7 @@ namespace CicekApp.API.Migrations
                     b.HasIndex("OrderId")
                         .IsUnique();
 
-                    b.HasIndex("UserId")
-                        .IsUnique();
+                    b.HasIndex("UserId");
 
                     b.ToTable("carts", "public");
                 });
@@ -351,8 +350,8 @@ namespace CicekApp.API.Migrations
                         .OnDelete(DeleteBehavior.SetNull);
 
                     b.HasOne("CicekApp.Domain.Entities.User", "User")
-                        .WithOne("Cart")
-                        .HasForeignKey("CicekApp.Domain.Entities.Cart", "UserId")
+                        .WithMany("Carts")
+                        .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
@@ -478,7 +477,7 @@ namespace CicekApp.API.Migrations
 
             modelBuilder.Entity("CicekApp.Domain.Entities.User", b =>
                 {
-                    b.Navigation("Cart");
+                    b.Navigation("Carts");
 
                     b.Navigation("Orders");
                 });

@@ -38,11 +38,11 @@ namespace CicekApp.API.Controllers
 
             if (response.Success == false)
             {
-                return BadRequest(response.Message);
+                return BadRequest(response);
             }
             else
             {
-                return Ok(response.Message);
+                return Ok(response);
 
             }
 
@@ -73,7 +73,6 @@ namespace CicekApp.API.Controllers
             await _userService.SaveAddressAsync(model);
 
             return Ok();
-
 
         }
 

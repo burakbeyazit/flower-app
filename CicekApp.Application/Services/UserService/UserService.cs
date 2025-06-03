@@ -46,7 +46,7 @@ namespace CicekApp.Application.Services.UserService
         // Add a new user
         public async Task AddAsync(User user)
         {
-            var query = @"INSERT INTO public.users (email, passwordhash, firstname, lastname, phonenumber, createdat, lastonline, isactive, roleid, statusmessage, address, city, postalcode, country) 
+            var query = @"INSERT INTO public.users (email, passwordhash, firstname, lastname, phone, createdat, lastonline, isactive, roleid, statusmessage, address, city, postalcode, country) 
                           VALUES(@Email, @PasswordHash, @FirstName, @LastName, @Phone, @CreatedAt, @LastOnline, @IsActive, @RoleId, @StatusMessage, @Address, @City, @PostalCode, @Country)";
 
             await _context.Database.GetDbConnection().ExecuteAsync(query, new
