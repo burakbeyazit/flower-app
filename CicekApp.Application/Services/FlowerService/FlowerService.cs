@@ -5,7 +5,6 @@ using System.Threading.Tasks;
 using CicekApp.Application.Models.Response.FlowerResponse;
 using CicekApp.Application.Persistence;
 using CicekApp.Domain.Entities;
-using Dapper;
 using Microsoft.EntityFrameworkCore;
 
 namespace CicekApp.Application.Services.FlowerService
@@ -22,83 +21,61 @@ namespace CicekApp.Application.Services.FlowerService
         // Get a flower by its ID
         public async Task<Flower> GetByIdAsync(int flowerId)
         {
-            var query = "SELECT * FROM public.flowers WHERE flowerid = @FlowerId";
-            return await _context.Database.GetDbConnection()
-                .QueryFirstOrDefaultAsync<Flower>(query, new { FlowerId = flowerId });
+            return await _context.Flowers
+                .FirstOrDefaultAsync(f => f.FlowerId == flowerId);
         }
 
         // Get all flowers along with their categories
         public async Task<List<FlowerResponse>> GetAllAsync()
         {
-            var query = @"
-            SELECT 
-                f.flowerid, 
-                f.flowername, 
-                f.price, 
-                f.stockquantity, 
-                f.description, 
-                f.imageurl, 
-                c.categoryid, 
-                c.categoryname
-            FROM 
-                public.flowers f
-            INNER JOIN 
-                public.categories c ON f.categoryid = c.categoryid
-            ORDER BY
-                c.categoryid
-            ";
-
-            var result = await _context.Database.GetDbConnection()
-                .QueryAsync<FlowerResponse>(query);
-            return result.ToList();
+            return await _context.Flowers
+                .OrderBy(f => f.CategoryId)
+                .Select(f => new FlowerResponse
+                {
+                    FlowerId = f.FlowerId,
+                    FlowerName = f.FlowerName,
+                    Price = f.Price,
+                    StockQuantity = f.StockQuantity,
+                    Description = f.Description,
+                    ImageUrl = f.ImageUrl,
+                    CategoryId = f.CategoryId,
+                    Category = f.Category.CategoryName
+                })
+                .ToListAsync();
         }
 
         // Add a new flower
         public async Task AddAsync(Flower flower)
         {
-            var query = "INSERT INTO public.flowers (flowername, price, stockquantity, description, imageurl, categoryid) " +
-                        "VALUES (@FlowerName, @Price, @StockQuantity, @Description, @ImageUrl, @CategoryId)";
-
-            await _context.Database.GetDbConnection().ExecuteAsync(query, new
-            {
-                flower.FlowerName,
-                flower.Price,
-                flower.StockQuantity,
-                flower.Description,
-                flower.ImageUrl,
-                flower.CategoryId
-            });
+            await _context.Flowers.AddAsync(flower);
+            await _context.SaveChangesAsync();
         }
 
         // Update an existing flower
         public async Task UpdateAsync(Flower flower)
         {
-            var query = "UPDATE public.flowers SET " +
-                        "flowername = @FlowerName, " +
-                        "price = @Price, " +
-                        "stockquantity = @StockQuantity, " +
-                        "description = @Description, " +
-                        "imageurl = @ImageUrl, " +
-                        "categoryid = @CategoryId " +
-                        "WHERE flowerid = @FlowerId";
-
-            await _context.Database.GetDbConnection().ExecuteAsync(query, new
+            var dbFlower = await _context.Flowers.FirstOrDefaultAsync(f => f.FlowerId == flower.FlowerId);
+            if (dbFlower != null)
             {
-                flower.FlowerName,
-                flower.Price,
-                flower.StockQuantity,
-                flower.Description,
-                flower.ImageUrl,
-                flower.CategoryId,
-                flower.FlowerId
-            });
+                dbFlower.FlowerName = flower.FlowerName;
+                dbFlower.Price = flower.Price;
+                dbFlower.StockQuantity = flower.StockQuantity;
+                dbFlower.Description = flower.Description;
+                dbFlower.ImageUrl = flower.ImageUrl;
+                dbFlower.CategoryId = flower.CategoryId;
+                await _context.SaveChangesAsync();
+            }
         }
 
         // Delete a flower
         public async Task DeleteAsync(int flowerId)
         {
-            var query = "DELETE FROM public.flowers WHERE flowerid = @FlowerId";
-            await _context.Database.GetDbConnection().ExecuteAsync(query, new { FlowerId = flowerId });
+            var flower = await _context.Flowers.FirstOrDefaultAsync(f => f.FlowerId == flowerId);
+            if (flower != null)
+            {
+                _context.Flowers.Remove(flower);
+                await _context.SaveChangesAsync();
+            }
         }
     }
 }

@@ -7,7 +7,6 @@ using CicekApp.Application.Persistence;
 using CicekApp.Application.Services.UserService;
 using CicekApp.Domain.Entities;
 using CicekApp.Domain.Enums;
-using Dapper;
 using Microsoft.EntityFrameworkCore;
 
 namespace CicekApp.Application.Services.OrderService
@@ -17,8 +16,6 @@ namespace CicekApp.Application.Services.OrderService
         private readonly AppDbContext _context;
         private readonly IUserService _userService;
 
-
-
         public OrderService(AppDbContext context, IUserService userService)
         {
             _context = context;
@@ -26,132 +23,127 @@ namespace CicekApp.Application.Services.OrderService
         }
 
         public async Task<int> CreateOrder(string username, int cartId)
-
         {
             // Kullanıcıyı al
             var user = await _userService.GetByEmailAsync(username);
             if (user == null)
-            {
                 throw new Exception("Kullanıcı bulunamadı.");
-            }
 
             // Sepeti al ve doğrula
-            var cart = await _context.Database.GetDbConnection().QueryFirstOrDefaultAsync<Cart>(
-                "SELECT * FROM carts WHERE id = @CartId AND userid = @UserId AND orderid IS NULL",
-                new { CartId = cartId, UserId = user.UserId });
+            var cart = await _context.Carts
+                .FirstOrDefaultAsync(c => c.Id == cartId && c.UserId == user.UserId && c.OrderId == null);
 
             if (cart == null)
-            {
                 throw new Exception("Geçerli bir sepet bulunamadı.");
-            }
 
             // Sipariş oluşturma
-            var orderId = await _context.Database.GetDbConnection().QueryFirstOrDefaultAsync<int>(
-                @"INSERT INTO orders (userid, orderdate, totalprice, status, cartid) 
-          VALUES (@UserId, CURRENT_TIMESTAMP, @TotalPrice, @Status, @CartId) 
-          RETURNING orderid",
-                new
-                {
-                    UserId = user.UserId,
-                    TotalPrice = cart.TotalAmount,
-                    Status = OrderStatus.Pending, // Varsayılan olarak "Bekliyor" durumu
-                    CartId = cartId
-                });
+            var order = new Order
+            {
+                UserId = user.UserId,
+                OrderDate = DateTime.UtcNow,
+                TotalPrice = cart.TotalAmount,
+                Status = OrderStatus.Pending,
+                CartId = cartId
+            };
+
+            _context.Orders.Add(order);
+            await _context.SaveChangesAsync();
 
             // Sepeti siparişle ilişkilendir
-            var updateCartQuery = "UPDATE carts SET orderid = @OrderId WHERE id = @CartId";
-            await _context.Database.GetDbConnection().ExecuteAsync(updateCartQuery, new { OrderId = orderId, CartId = cartId });
+            cart.OrderId = order.OrderId;
+            await _context.SaveChangesAsync();
 
-            return orderId; // Oluşturulan siparişin ID'si
+            return order.OrderId; // Oluşturulan siparişin ID'si
         }
 
         public async Task<List<OrderResponse>> GetOrdersByUsername(string username)
         {
             var user = await _userService.GetByEmailAsync(username);
             if (user == null)
-            {
                 throw new Exception("Kullanıcı bulunamadı.");
-            }
 
-            // Kullanıcının siparişlerini al
-            var orders = await _context.Database.GetDbConnection().QueryAsync<OrderResponse>(
-                            @"SELECT o.orderid, 
-                            o.orderdate, 
-                            o.totalprice, 
-                            o.status, 
-                            c.id AS cartid,
-                            u.email AS username
-                    FROM orders o
-                    JOIN carts c ON o.cartid = c.id
-                    JOIN users u ON o.userid = u.userid
-                    WHERE o.userid = @UserId",
-                new { UserId = user.UserId });
+            var orders = await _context.Orders
+                .Include(o => o.Cart)
+                .Where(o => o.UserId == user.UserId)
+                .OrderByDescending(o => o.OrderDate)
+                .ToListAsync();
 
+            var responses = new List<OrderResponse>();
             foreach (var order in orders)
             {
-                // Her sipariş için ilişkili çiçekleri al
-                var flowers = await _context.Database.GetDbConnection().QueryAsync<FlowerResponse>(
-                    @"SELECT f.flowerid, 
-                     f.flowername, 
-                     f.price, 
-                     f.stockquantity,
-                     f.description,
-                     f.imageurl,
-                     f.categoryid,
-                     c.categoryname AS category
-                        FROM cart_flowers cf
-                        JOIN flowers f ON cf.flowerid = f.flowerid
-                        LEFT JOIN categories c ON f.categoryid = c.categoryid
-                        WHERE cf.cartid = @CartId",
-                    new { CartId = order.CartId });
+                var cartFlowers = await _context.CartFlowers
+                    .Include(cf => cf.Flower)
+                        .ThenInclude(f => f.Category)
+                    .Where(cf => cf.CartId == order.CartId)
+                    .ToListAsync();
 
-                order.Flowers = flowers.ToList();  // Çiçekleri sipariş detaylarına ekle
+                var flowerResponses = cartFlowers.Select(cf => new FlowerResponse
+                {
+                    FlowerId = cf.Flower.FlowerId,
+                    FlowerName = cf.Flower.FlowerName,
+                    Price = cf.Flower.Price,
+                    StockQuantity = cf.Flower.StockQuantity,
+                    Description = cf.Flower.Description,
+                    ImageUrl = cf.Flower.ImageUrl,
+                    CategoryId = cf.Flower.CategoryId,
+                    Category = cf.Flower.Category != null ? cf.Flower.Category.CategoryName : null,
+                }).ToList();
+
+                responses.Add(new OrderResponse
+                {
+                    OrderId = order.OrderId,
+                    OrderDate = order.OrderDate,
+                    TotalPrice = order.TotalPrice,
+                    Status = order.Status,
+                    CartId = order.CartId,
+                    Username = user.Email,
+                    Flowers = flowerResponses
+                });
             }
 
-            return orders.ToList(); // Siparişlerin tamamını döndür
+            return responses;
         }
+
         public async Task<OrderResponse> GetOrderById(int orderId)
         {
-            // Sipariş detayını al
-            var order = await _context.Database.GetDbConnection().QueryFirstOrDefaultAsync<OrderResponse>(
-            @"SELECT o.orderid, 
-                        o.orderdate, 
-                        o.totalprice, 
-                        o.status, 
-                        c.id AS cartid, 
-                        u.email AS username
-                FROM orders o
-                JOIN carts c ON o.cartid = c.id
-                JOIN users u ON o.userid = u.userid
-                WHERE o.orderid = @OrderId",
-     new { OrderId = orderId });
+            var order = await _context.Orders
+                .Include(o => o.Cart)
+                .Include(o => o.User)
+                .FirstOrDefaultAsync(o => o.OrderId == orderId);
 
             if (order == null)
-            {
                 throw new Exception("Sipariş bulunamadı.");
-            }
 
-            // Siparişe ait çiçekleri getir
-            var flowers = await _context.Database.GetDbConnection().QueryAsync<FlowerResponse>(
-                @"SELECT f.flowerid, 
-                 f.flowername, 
-                 f.price, 
-                 f.stockquantity,
-                 f.description,
-                 f.imageurl,
-                 f.categoryid,
-                 c.categoryname AS category
-          FROM cart_flowers cf
-          JOIN flowers f ON cf.flowerid = f.flowerid
-          LEFT JOIN categories c ON f.categoryid = c.categoryid
-          WHERE cf.cartid = @CartId",
-                new { CartId = order.CartId });
+            var cartFlowers = await _context.CartFlowers
+                .Include(cf => cf.Flower)
+                    .ThenInclude(f => f.Category)
+                .Where(cf => cf.CartId == order.CartId)
+                .ToListAsync();
 
-            order.Flowers = flowers.ToList();  // Çiçekleri sipariş detaylarına ekle
+            var flowerResponses = cartFlowers.Select(cf => new FlowerResponse
+            {
+                FlowerId = cf.Flower.FlowerId,
+                FlowerName = cf.Flower.FlowerName,
+                Price = cf.Flower.Price,
+                StockQuantity = cf.Flower.StockQuantity,
+                Description = cf.Flower.Description,
+                ImageUrl = cf.Flower.ImageUrl,
+                CategoryId = cf.Flower.CategoryId,
+                Category = cf.Flower.Category != null ? cf.Flower.Category.CategoryName : null,
+            }).ToList();
 
-            return order; // Sipariş detayını döndür
+            var orderResponse = new OrderResponse
+            {
+                OrderId = order.OrderId,
+                OrderDate = order.OrderDate,
+                TotalPrice = order.TotalPrice,
+                Status = order.Status,
+                CartId = order.CartId,
+                Username = order.User?.Email,
+                Flowers = flowerResponses
+            };
+
+            return orderResponse;
         }
-
-
     }
 }

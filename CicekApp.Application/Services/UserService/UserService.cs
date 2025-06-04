@@ -5,7 +5,6 @@ using System.Threading.Tasks;
 using CicekApp.Application.Models.Request;
 using CicekApp.Application.Persistence;
 using CicekApp.Domain.Entities;
-using Dapper;
 using Microsoft.EntityFrameworkCore;
 
 namespace CicekApp.Application.Services.UserService
@@ -22,213 +21,145 @@ namespace CicekApp.Application.Services.UserService
         // Get a user by their ID
         public async Task<User> GetByIdAsync(int userId)
         {
-            var query = "SELECT * FROM public.users WHERE userid = @UserId";
-            return await _context.Database.GetDbConnection()
-                .QueryFirstOrDefaultAsync<User>(query, new { UserId = userId });
+            return await _context.Users.FirstOrDefaultAsync(u => u.UserId == userId);
         }
 
         // Get a user by their email
         public async Task<User> GetByEmailAsync(string email)
         {
-            var query = "SELECT * FROM public.users WHERE email = @Email";
-            return await _context.Database.GetDbConnection()
-                .QueryFirstOrDefaultAsync<User>(query, new { Email = email });
+            return await _context.Users
+                .FirstOrDefaultAsync(u => u.Email == email);
         }
 
         // Get all users
         public async Task<IEnumerable<User>> GetAllAsync()
         {
-            var query = "SELECT * FROM public.users";
-            return await _context.Database.GetDbConnection()
-                .QueryAsync<User>(query);
+            return await _context.Users
+                .ToListAsync();
         }
 
         // Add a new user
         public async Task AddAsync(User user)
         {
-            var query = @"INSERT INTO public.users (email, passwordhash, firstname, lastname, phone, createdat, lastonline, isactive, roleid, statusmessage, address, city, postalcode, country) 
-                          VALUES(@Email, @PasswordHash, @FirstName, @LastName, @Phone, @CreatedAt, @LastOnline, @IsActive, @RoleId, @StatusMessage, @Address, @City, @PostalCode, @Country)";
-
-            await _context.Database.GetDbConnection().ExecuteAsync(query, new
-            {
-                user.Email,
-                user.PasswordHash,
-                user.FirstName,
-                user.LastName,
-                user.Phone,
-                user.CreatedAt,
-                user.LastOnline,
-                user.IsActive,
-                user.RoleId,
-                user.StatusMessage,
-                user.Address,
-                user.City,
-                user.PostalCode,
-                user.Country
-            });
+            _context.Users.Add(user);
+            await _context.SaveChangesAsync();
         }
 
         // Update an existing user
         public async Task UpdateAsync(User user)
         {
-            var query = @"UPDATE public.users SET 
-                          email = @Email, 
-                          passwordhash = @PasswordHash, 
-                          firstname = @FirstName, 
-                          lastname = @LastName, 
-                          phonenumber = @Phone, 
-                          lastonline = @LastOnline, 
-                          isactive = @IsActive, 
-                          roleid = @RoleId, 
-                          statusmessage = @StatusMessage, 
-                          address = @Address, 
-                          city = @City, 
-                          postalcode = @PostalCode, 
-                          country = @Country 
-                          WHERE userid = @UserId";
+            var dbUser = await _context.Users.FirstOrDefaultAsync(u => u.UserId == user.UserId);
+            if (dbUser == null) return;
 
-            var parameters = new
-            {
-                user.Email,
-                user.PasswordHash,
-                user.FirstName,
-                user.LastName,
-                user.Phone,
-                user.LastOnline,
-                user.IsActive,
-                user.RoleId,
-                user.StatusMessage,
-                user.Address,
-                user.City,
-                user.PostalCode,
-                user.Country,
-                user.UserId
-            };
+            dbUser.Email = user.Email;
+            dbUser.PasswordHash = user.PasswordHash;
+            dbUser.FirstName = user.FirstName;
+            dbUser.LastName = user.LastName;
+            dbUser.Phone = user.Phone;
+            dbUser.LastOnline = user.LastOnline;
+            dbUser.IsActive = user.IsActive;
+            dbUser.RoleId = user.RoleId;
+            dbUser.StatusMessage = user.StatusMessage;
+            dbUser.Address = user.Address;
+            dbUser.City = user.City;
+            dbUser.PostalCode = user.PostalCode;
+            dbUser.Country = user.Country;
 
-            // Execute the query
-            await _context.Database.GetDbConnection().ExecuteAsync(query, parameters);
+            await _context.SaveChangesAsync();
         }
 
         // Delete a user
         public async Task DeleteAsync(int userId)
         {
-            var query = "DELETE FROM public.users WHERE userid = @UserId";
-            await _context.Database.GetDbConnection().ExecuteAsync(query, new { UserId = userId });
+            var user = await _context.Users.FirstOrDefaultAsync(u => u.UserId == userId);
+            if (user != null)
+            {
+                _context.Users.Remove(user);
+                await _context.SaveChangesAsync();
+            }
         }
 
         // Update the last online time for a user
         public async Task UpdateLastEntryDateAsync(int userId)
         {
-            var query = "UPDATE public.users SET lastonline = @LastOnline WHERE userid = @UserId";
-            await _context.Database.GetDbConnection().ExecuteAsync(query, new
+            var user = await _context.Users.FirstOrDefaultAsync(u => u.UserId == userId);
+            if (user != null)
             {
-                LastOnline = DateTime.Now, // Set current time as the last online time
-                UserId = userId
-            });
+                user.LastOnline = DateTime.UtcNow;
+                await _context.SaveChangesAsync();
+            }
         }
 
         // Update the role of a user
         public async Task UpdateRoleAsync(int userId, int newRoleId)
         {
-            var query = "UPDATE public.users SET roleid = @RoleId WHERE userid = @UserId";
-            await _context.Database.GetDbConnection().ExecuteAsync(query, new
+            var user = await _context.Users.FirstOrDefaultAsync(u => u.UserId == userId);
+            if (user != null)
             {
-                RoleId = newRoleId,
-                UserId = userId
-            });
+                user.RoleId = newRoleId;
+                await _context.SaveChangesAsync();
+            }
         }
 
         // Get all orders for a user
         public async Task<IEnumerable<Order>> GetUserOrdersAsync(int userId)
         {
-            var query = "SELECT * FROM public.orders WHERE userid = @UserId";
-            return await _context.Database.GetDbConnection()
-                .QueryAsync<Order>(query, new { UserId = userId });
+            return await _context.Orders
+                .Where(o => o.UserId == userId)
+                .ToListAsync();
         }
 
+        // Update user address info by email
         public async Task SaveAddressAsync(AddressRequest addressRequest)
         {
-            var query = @"UPDATE public.users SET 
-                  address = @Address, 
-                  city = @City, 
-                  postalcode = @PostalCode, 
-                  country = @Country 
-                  WHERE email = @Username";
-
-            var parameters = new
+            var user = await _context.Users.FirstOrDefaultAsync(u => u.Email == addressRequest.Username);
+            if (user != null)
             {
-                addressRequest.Address,
-                addressRequest.City,
-                addressRequest.PostalCode,
-                addressRequest.Country,
-                addressRequest.Username // Bu kısım email alanı olmalı
-            };
-
-            // Execute the query to update the user's address
-            await _context.Database.GetDbConnection().ExecuteAsync(query, parameters);
+                user.Address = addressRequest.Address;
+                user.City = addressRequest.City;
+                user.PostalCode = addressRequest.PostalCode;
+                user.Country = addressRequest.Country;
+                await _context.SaveChangesAsync();
+            }
         }
-
 
         // Update user and their orders (if needed)
         public async Task UpdateUserWithOrdersAsync(User user)
         {
-            var query = @"UPDATE public.users SET 
-                          email = @Email, 
-                          passwordhash = @PasswordHash, 
-                          firstname = @FirstName, 
-                          lastname = @LastName, 
-                          phonenumber = @Phone, 
-                          lastonline = @LastOnline, 
-                          isactive = @IsActive, 
-                          roleid = @RoleId, 
-                          statusmessage = @StatusMessage, 
-                          address = @Address, 
-                          city = @City, 
-                          postalcode = @PostalCode, 
-                          country = @Country 
-                          WHERE userid = @UserId";
+            var dbUser = await _context.Users
+                .FirstOrDefaultAsync(u => u.UserId == user.UserId);
 
-            var parameters = new
-            {
-                user.Email,
-                user.PasswordHash,
-                user.FirstName,
-                user.LastName,
-                user.Phone,
-                user.LastOnline,
-                user.IsActive,
-                user.RoleId,
-                user.StatusMessage,
-                user.Address,
-                user.City,
-                user.PostalCode,
-                user.Country,
-                user.UserId
-            };
+            if (dbUser == null) return;
 
-            // Execute the query to update the user
-            await _context.Database.GetDbConnection().ExecuteAsync(query, parameters);
+            dbUser.Email = user.Email;
+            dbUser.PasswordHash = user.PasswordHash;
+            dbUser.FirstName = user.FirstName;
+            dbUser.LastName = user.LastName;
+            dbUser.Phone = user.Phone;
+            dbUser.LastOnline = user.LastOnline;
+            dbUser.IsActive = user.IsActive;
+            dbUser.RoleId = user.RoleId;
+            dbUser.StatusMessage = user.StatusMessage;
+            dbUser.Address = user.Address;
+            dbUser.City = user.City;
+            dbUser.PostalCode = user.PostalCode;
+            dbUser.Country = user.Country;
 
-            // If the user has orders, update them as well
+            // Eğer order güncellemesi gerekiyorsa
             if (user.Orders != null && user.Orders.Any())
             {
-                foreach (var order in user.Orders)
+                foreach (var updatedOrder in user.Orders)
                 {
-                    var orderQuery = @"UPDATE public.orders SET 
-                        totalprice = @TotalPrice,
-                        status = @Status
-                        WHERE orderid = @OrderId";
-
-                    var orderParams = new
+                    var dbOrder = dbUser.Orders.FirstOrDefault(o => o.OrderId == updatedOrder.OrderId);
+                    if (dbOrder != null)
                     {
-                        order.TotalPrice,
-                        order.Status,
-                        order.OrderId
-                    };
-
-                    await _context.Database.GetDbConnection().ExecuteAsync(orderQuery, orderParams);
+                        dbOrder.TotalPrice = updatedOrder.TotalPrice;
+                        dbOrder.Status = updatedOrder.Status;
+                    }
                 }
             }
+
+            await _context.SaveChangesAsync();
         }
     }
 }

@@ -5,7 +5,6 @@ using System.Threading.Tasks;
 using CicekApp.Application.Models.Response.FlowerResponse;
 using CicekApp.Application.Persistence;
 using CicekApp.Domain.Entities;
-using Dapper;
 using Microsoft.EntityFrameworkCore;
 
 namespace CicekApp.Application.Services.CategoryService
@@ -21,20 +20,29 @@ namespace CicekApp.Application.Services.CategoryService
 
         public async Task<GetAllCategories> GetByIdAsync(int categoryid)
         {
-
-            var query = "SELECT * FROM categories WHERE categoryid = @categoryid";
-            return await _context.Database.GetDbConnection().QueryFirstOrDefaultAsync<GetAllCategories>(query, new { DeliveryId = categoryid });
-
+            // EF ile LINQ üzerinden Category çekip GetAllCategories DTO'ya mapliyoruz
+            return await _context.Categories
+                .Where(c => c.CategoryId == categoryid)
+                .Select(c => new GetAllCategories
+                {
+                    CategoryId = c.CategoryId,
+                    CategoryName = c.CategoryName,
+                    // Buraya başka field ekleyebilirsin
+                })
+                .FirstOrDefaultAsync();
         }
 
-        // Tüm teslimatları getirir
+        // Tüm kategorileri getirir
         public async Task<List<GetAllCategories>> GetAllAsync()
         {
-
-            var query = "SELECT * FROM categories";
-            var categories = await _context.Database.GetDbConnection().QueryAsync<GetAllCategories>(query);
-            return categories.ToList();
-
+            return await _context.Categories
+                .Select(c => new GetAllCategories
+                {
+                    CategoryId = c.CategoryId,
+                    CategoryName = c.CategoryName,
+                    // Ekstra alanlar eklenecekse ekle
+                })
+                .ToListAsync();
         }
     }
 }

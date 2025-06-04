@@ -42,9 +42,9 @@ namespace CicekApp.Application.Services.Auth
                 Email = registerObject.Email,
                 FirstName = registerObject.FirstName,
                 IsActive = true,
-                CreatedAt = DateTime.Now,
+                CreatedAt = DateTime.UtcNow,
                 LastName = registerObject.LastName,
-                LastOnline = DateTime.Now,
+                LastOnline = DateTime.UtcNow,
                 Phone = registerObject.PhoneNumber,
                 RoleId = 3, // 1-Admin 2-Eleman 3-Normal üye
                 StatusMessage = registerObject.StatusMessage ?? "",
@@ -78,7 +78,7 @@ namespace CicekApp.Application.Services.Auth
             var token = new JwtSecurityToken(
                 issuer: _configuration["Jwt:Issuer"],
                 audience: _configuration["Jwt:Audience"],
-                expires: DateTime.Now.AddHours(12),
+                expires: DateTime.UtcNow.AddHours(12),
                 claims: claims,
                 signingCredentials: new SigningCredentials(authSigningKey, SecurityAlgorithms.HmacSha256)
             );

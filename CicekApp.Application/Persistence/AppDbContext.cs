@@ -25,7 +25,7 @@ namespace CicekApp.Application.Persistence
             {
                 foreach (var property in entity.GetProperties())
                 {
-                    property.SetColumnName(property.Name.ToLower());
+                    property.SetColumnName(property.Name.ToLowerInvariant());
                 }
             }
 
